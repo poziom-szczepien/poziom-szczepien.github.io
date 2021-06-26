@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .gradient {
+        max-width: 100%
+        display: inline-block;
+    }
+
+    .grad-step {
+        display: inline-block;
+        height: 20px;
+        width: 1%;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+</style>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <script src="https://d3js.org/d3.v7.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+</head>
+<body>
+
+<div>
+    <svg></svg>
+    <div>
+        0%
+        <div class="gradient">
+
+        </div>
+        100%
+    </div>
+</div>
+
+
+<script>
+    var isDistrict = true;
+    var colorScale = chroma.scale(['white', 'darkblue'])
+        .domain([0, 100])
+        .gamma(1);
+
+    for (i = 0; i < 100; i++) {
+        d3.select(".gradient")
+            .append("span")
+            .attr('class', "grad-step")
+            .style("background-color", colorScale(i));
+    }
+
+    var w = 1200,
+        h = 800;
+
+
+    var svg = d3.select("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+    d3.json("resources/vaccine-counties-final.json").then(function (json) {
+        json.features.forEach(function (feature) {
+            feature.geometry = turf.rewind(feature.geometry, {reverse: true});
+        })
+
+        var projection = d3.geoMercator()
+            .fitSize([w, h], json);
+
+        var path = d3.geoPath()
+            .projection(projection);
+
+        // Define the div for the tooltip
+        var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        svg.selectAll("path")
+            .data(json.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .style("fill", function (geoUnit) {
+                return colorScale(geoUnit.properties.fullyVaccinated / geoUnit.properties.population * 100)
+            })
+            .on("mouseover", function (event, geoUnit) {
+                console.log("add ")
+                div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                div.html(`
+                <p><b>${geoUnit.properties.JPT_NAZWA_}<b></p>
+                <p>Zaszczepieni: ${(geoUnit.properties.fullyVaccinated * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.fullyVaccinated}/${geoUnit.properties.population})</p>
+                <p>Co najmniej jedną: ${(geoUnit.properties.atLeastOneDose * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.atLeastOneDose}/${geoUnit.properties.population})</p>
+                <p>Co najmniej jedną 12-19: ~${(geoUnit.properties.w1_12_19 * 100.0 / geoUnit.properties["12_19"]).toFixed(1)}% (${geoUnit.properties.w1_12_19}/~${geoUnit.properties["12_19"]})</p>
+                <p>Co najmniej jedną 20-39: ${(geoUnit.properties.w1_20_39 * 100.0 / geoUnit.properties["20_39"]).toFixed(1)}% (${geoUnit.properties.w1_20_39}/${geoUnit.properties["20_39"]})</p>
+                <p>Co najmniej jedną 40-59: ${(geoUnit.properties.w1_40_59 * 100.0 / geoUnit.properties["40_59"]).toFixed(1)}% (${geoUnit.properties.w1_40_59}/${geoUnit.properties["40_59"]})</p>
+                <p>Co najmniej jedną 60-69: ${(geoUnit.properties.w1_60_69 * 100.0 / geoUnit.properties["60_69"]).toFixed(1)}% (${geoUnit.properties.w1_60_69}/${geoUnit.properties["60_69"]})</p>
+                <p>Co najmniej jedną 70plus: ${(geoUnit.properties.w1_70plus * 100.0 / geoUnit.properties["70plus"]).toFixed(1)}% (${geoUnit.properties.w1_70plus}/${geoUnit.properties["70plus"]})</p>
+                `)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY) + "px");
+            })
+            .on("mouseout", function () {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+    });
+</script>
+</body>
