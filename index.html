@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <script src="https://d3js.org/d3.v7.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+</head>
 <style>
     .gradient {
-        max-width: 100%
+        width: 90%;
         display: inline-block;
     }
 
@@ -23,28 +34,79 @@
         pointer-events: none;
     }
 </style>
-<head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
-    <script src="https://d3js.org/d3.v7.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
-</head>
 <body>
 
-<div>
-    <svg></svg>
-    <div>
-        0%
-        <div class="gradient">
-
+<div class="container">
+    <div class="row text-center">
+        <h1>Poziom szczepień w Polsce</h1>
+    </div>
+    <div class="row m-2">
+        <form>
+            <div class="row">
+                <div class="col">
+                    <select id="admDivisionSelect" class="form-select" aria-label="Jednostka administracyjna">
+                        <option selected value="county">Gminy</option>
+                        <option value="district">Powiaty</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <select id="levelSelect" class="form-select" aria-label="Poziom zaszczepienia wg">
+                        <option selected value="fully">W pełni Zaszczepieni</option>
+                        <option value="atLeastOne">Co najmniej jedną dawką</option>
+                        <option value="12_19">12-19</option>
+                        <option value="20_39">20-39</option>
+                        <option value="40_59">40-59</option>
+                        <option value="60_69">60-69</option>
+                        <option value="70plus">70+</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="d-flex justify-content-center">
+            <div>0%</div>
+            <div class="gradient">
+            </div>
+            <div>100%</div>
         </div>
-        100%
+    </div>
+    <div class="row">
+        <svg></svg>
+    </div>
+    <div class="row">
+
     </div>
 </div>
+<footer class="text-center fixed-bottom" style="background-color: #d0d0d0">
+    <div class="container p-3">
+        <div class="row">
+            <div class="col">
+                <p>Dane szczepień: <a href="https://www.gov.pl/web/szczepienia-gmin">szczepienia-gmin</a></p>
+                <p>Dane populacyjne: <a href="https://bdl.stat.gov.pl/BDL/dane/podgrup/temat">GUS</a></p>
+                <p>Mapa powiatów: <a href="https://github.com/ppatrzyk/polska-geojson">polska-geojson</a></p>
+            </div>
+            <div class="col">
+                <a
+                        class="btn btn-floating m-1"
+                        style="background-color: #d0d0d0;"
+                        href="https://github.com/mateusz-dziurdziak"
+                        role="button"
+                ><i class="bi bi-github"></i
+                ></a>
+            </div>
+            <div class="col">
+            </div>
+        </div>
+    </div>
 
-
+    <div class="row">
+        <div class="text-center p-3">
+            © 2021 Copyright: Mateusz Dziurdziak
+        </div>
+    </div>
+</footer>
 <script>
-    var isDistrict = true;
     var colorScale = chroma.scale(['white', 'darkblue'])
         .domain([0, 100])
         .gamma(1);
@@ -56,61 +118,110 @@
             .style("background-color", colorScale(i));
     }
 
-    var w = 1200,
-        h = 800;
-
-
     var svg = d3.select("svg")
-        .attr("width", w)
-        .attr("height", h);
+        .attr("width", '1200')
+        .attr("height", '800')
+        .attr('viewBox', '0 0 1200 800')
+        .attr('preserveAspectRatio', 'xMinYMin');
 
-    d3.json("resources/counties.geo.json").then(function (json) {
-        json.features.forEach(function (feature) {
-            feature.geometry = turf.rewind(feature.geometry, {reverse: true});
-        })
+    // Define the div for the tooltip
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
-        var projection = d3.geoMercator()
-            .fitSize([w, h], json);
+    var counties = d3.json("resources/counties.geo.json");
+    var districts = d3.json("resources/districts.geo.json");
 
-        var path = d3.geoPath()
-            .projection(projection);
+    var render = function () {
+        var admDivision = d3.select('#admDivisionSelect').node().value;
+        var level = d3.select('#levelSelect').node().value;
 
-        // Define the div for the tooltip
-        var div = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        svg.selectAll("path")
-            .data(json.features)
-            .enter()
-            .append("path")
-            .attr("d", path)
-            .style("fill", function (geoUnit) {
-                return colorScale(geoUnit.properties.fullyVaccinated / geoUnit.properties.population * 100)
+        var geo = admDivision === 'county' ? counties : districts;
+        geo.then(function (json) {
+            console.log("draw")
+            json.features.forEach(function (feature) {
+                feature.geometry = turf.rewind(feature.geometry, {reverse: true});
             })
-            .on("mouseover", function (event, geoUnit) {
-                console.log("add ")
-                div.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                div.html(`
-                <p><b>${geoUnit.properties.name}<b></p>
+
+            var projection = d3.geoMercator()
+                .fitSize([svg.attr("width"), svg.attr("height")], json);
+
+            var path = d3.geoPath()
+                .projection(projection);
+
+            svg.selectAll("path")
+                .remove();
+
+            svg.selectAll("path")
+                .data(json.features)
+                .enter()
+                .append("path")
+                .attr("d", path)
+                .style("fill", function (geoUnit) {
+                    var percentage;
+                    switch (level) {
+                        case 'fully':
+                            percentage = geoUnit.properties.fullyVaccinated / geoUnit.properties.population * 100;
+                            break;
+                        case 'atLeastOne':
+                            percentage = geoUnit.properties.atLeastOneDose / geoUnit.properties.population * 100;
+                            break;
+                        case '12_19':
+                            percentage = geoUnit.properties.w1_12_19 / geoUnit.properties["12_19"] * 100;
+                            break;
+                        case '20_39':
+                            percentage = geoUnit.properties.w1_20_39 / geoUnit.properties["20_39"] * 100;
+                            break;
+                        case '40_59':
+                            percentage = geoUnit.properties.w1_40_59 / geoUnit.properties["40_59"] * 100;
+                            break;
+                        case '60_69':
+                            percentage = geoUnit.properties.w1_60_69 / geoUnit.properties["60_69"] * 100;
+                            break;
+                        case '70plus':
+                            percentage = geoUnit.properties.w1_70plus / geoUnit.properties["70plus"] * 100;
+                            break;
+                        default:
+                            percentage = 0;
+                    }
+                    return colorScale(percentage);
+                })
+                .on("mouseover", function (event, geoUnit) {
+                    div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    div.html(`
+                <p><strong>${geoUnit.properties.name}</strong></p>
                 <p>Zaszczepieni: ${(geoUnit.properties.fullyVaccinated * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.fullyVaccinated}/${geoUnit.properties.population})</p>
                 <p>Co najmniej jedną: ${(geoUnit.properties.atLeastOneDose * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.atLeastOneDose}/${geoUnit.properties.population})</p>
-                <p>Co najmniej jedną 12-19: ~${(geoUnit.properties.w1_12_19 * 100.0 / geoUnit.properties["12_19"]).toFixed(1)}% (${geoUnit.properties.w1_12_19}/~${geoUnit.properties["12_19"]})</p>
-                <p>Co najmniej jedną 20-39: ${(geoUnit.properties.w1_20_39 * 100.0 / geoUnit.properties["20_39"]).toFixed(1)}% (${geoUnit.properties.w1_20_39}/${geoUnit.properties["20_39"]})</p>
-                <p>Co najmniej jedną 40-59: ${(geoUnit.properties.w1_40_59 * 100.0 / geoUnit.properties["40_59"]).toFixed(1)}% (${geoUnit.properties.w1_40_59}/${geoUnit.properties["40_59"]})</p>
-                <p>Co najmniej jedną 60-69: ${(geoUnit.properties.w1_60_69 * 100.0 / geoUnit.properties["60_69"]).toFixed(1)}% (${geoUnit.properties.w1_60_69}/${geoUnit.properties["60_69"]})</p>
-                <p>Co najmniej jedną 70plus: ${(geoUnit.properties.w1_70plus * 100.0 / geoUnit.properties["70plus"]).toFixed(1)}% (${geoUnit.properties.w1_70plus}/${geoUnit.properties["70plus"]})</p>
+                <p>12-19: ~${(geoUnit.properties.w1_12_19 * 100.0 / geoUnit.properties["12_19"]).toFixed(1)}% (${geoUnit.properties.w1_12_19}/~${geoUnit.properties["12_19"]})</p>
+                <p>20-39: ${(geoUnit.properties.w1_20_39 * 100.0 / geoUnit.properties["20_39"]).toFixed(1)}% (${geoUnit.properties.w1_20_39}/${geoUnit.properties["20_39"]})</p>
+                <p>40-59: ${(geoUnit.properties.w1_40_59 * 100.0 / geoUnit.properties["40_59"]).toFixed(1)}% (${geoUnit.properties.w1_40_59}/${geoUnit.properties["40_59"]})</p>
+                <p>60-69: ${(geoUnit.properties.w1_60_69 * 100.0 / geoUnit.properties["60_69"]).toFixed(1)}% (${geoUnit.properties.w1_60_69}/${geoUnit.properties["60_69"]})</p>
+                <p>70plus: ${(geoUnit.properties.w1_70plus * 100.0 / geoUnit.properties["70plus"]).toFixed(1)}% (${geoUnit.properties.w1_70plus}/${geoUnit.properties["70plus"]})</p>
+                <small>Dla wszystkich grup wiekowych wartość<br>dotyczy zaszczepionych co najmniej jedną dawką</small>
                 `)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY) + "px");
-            })
-            .on("mouseout", function () {
-                div.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-    });
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY) + "px");
+                })
+                .on("mouseout", function () {
+                    div.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+        });
+    }
+
+    d3.select('svg')
+        .on('resize', render);
+
+    d3.select('#admDivisionSelect')
+        .on('change', render);
+
+    d3.select('#levelSelect')
+        .on('change', render);
+
+    render();
+
 </script>
 </body>
