@@ -1,10 +1,6 @@
 # Districts
 
 ```shell
-jq 'unique_by(.powiat_nazwa) | [.[].powiat_nazwa] | flatten ' original/vaccine-counties.json > districts.json
-```
-
-```shell
 jq 'def reduce_sum(s): reduce s as $x (0; .+$x);
 def reduce_as_is(s): reduce s as $x (0; $x);
 group_by(.powiat_nazwa) | .[] | {

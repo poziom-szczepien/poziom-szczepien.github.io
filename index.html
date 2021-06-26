@@ -94,7 +94,7 @@
                     .duration(200)
                     .style("opacity", .9);
                 div.html(`
-                <p><b>${geoUnit.properties.JPT_NAZWA_}<b></p>
+                <p><b>${geoUnit.properties.name}<b></p>
                 <p>Zaszczepieni: ${(geoUnit.properties.fullyVaccinated * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.fullyVaccinated}/${geoUnit.properties.population})</p>
                 <p>Co najmniej jedną: ${(geoUnit.properties.atLeastOneDose * 100.0 / geoUnit.properties.population).toFixed(1)}% (${geoUnit.properties.atLeastOneDose}/${geoUnit.properties.population})</p>
                 <p>Co najmniej jedną 12-19: ~${(geoUnit.properties.w1_12_19 * 100.0 / geoUnit.properties["12_19"]).toFixed(1)}% (${geoUnit.properties.w1_12_19}/~${geoUnit.properties["12_19"]})</p>
