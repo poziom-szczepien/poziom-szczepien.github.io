@@ -54,12 +54,45 @@ jq --slurpfile dm $buildDirectory/counties-step-3.json '
     )
 ' $dataDirectory/counties.geo.json |  jq -s "."> $buildDirectory/counties-step-4.json
 
+echo "Removing unnecessary fields"
+jq '.[]
+  | del(.JPT_SJR_KO)
+  | del(.JPT_NAZWA_)
+  | del(.JPT_ORGAN_)
+  | del(.JPT_JOR_ID)
+  | del(.WERSJA_OD)
+  | del(.WERSJA_DO)
+  | del(.WAZNY_OD)
+  | del(.WAZNY_DO)
+  | del(.JPT_KOD__1)
+  | del(.JPT_NAZWA1)
+  | del(.JPT_ORGAN1)
+  | del(.JPT_WAZNA_)
+  | del(.ID_BUFORA_)
+  | del(.ID_BUFORA1)
+  | del(.ID_TECHNIC)
+  | del(.IIP_PRZEST)
+  | del(.IIP_IDENTY)
+  | del(.IIP_WERSJA)
+  | del(.JPT_KJ_IIP)
+  | del(.JPT_KJ_I_1)
+  | del(.JPT_KJ_I_2)
+  | del(.JPT_OPIS)
+  | del(.JPT_SPS_KO)
+  | del(.ID_BUFOR_1)
+  | del(.ID_BUFOR_1)
+  | del(.JPT_KJ_I_3)
+  | del(.JPT_ID)
+  | del(.Shape_Leng)
+  | del(.Shape_Area)
+' $buildDirectory/counties-step-4.json  |  jq -s "."> $buildDirectory/counties-step-5.json
+
 echo "Connecting population and vaccination data with geo data (stage 2)"
-jq --slurpfile vc $buildDirectory/counties-step-4.json -c '
+jq --slurpfile vc $buildDirectory/counties-step-5.json -c '
   INDEX($vc[0][]; .code) as $vcDict
   | walk(
     if type == "object" and .JPT_KOD_JE != null
-    then . + (
+    then (
       if $vcDict[.JPT_KOD_JE]
       then $vcDict[.JPT_KOD_JE]
       else {}
@@ -68,10 +101,10 @@ jq --slurpfile vc $buildDirectory/counties-step-4.json -c '
     else .
     end
   )
-' $dataDirectory/counties.geo.json  > $buildDirectory/counties-step-5.json
+' $dataDirectory/counties.geo.json  > $buildDirectory/counties-step-6.json
 
 echo "Copying result to $outDirectory"
-cp $buildDirectory/counties-step-5.json $outDirectory/counties.geo.json
+cp $buildDirectory/counties-step-6.json $outDirectory/counties.geo.json
 
 echo "#### Building districts ####"
 
