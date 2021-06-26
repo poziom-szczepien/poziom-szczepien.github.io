@@ -64,7 +64,7 @@
         .attr("width", w)
         .attr("height", h);
 
-    d3.json("resources/vaccine-counties-final.json").then(function (json) {
+    d3.json("resources/counties.geo.json").then(function (json) {
         json.features.forEach(function (feature) {
             feature.geometry = turf.rewind(feature.geometry, {reverse: true});
         })
