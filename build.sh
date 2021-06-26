@@ -180,3 +180,5 @@ jq --slurpfile vd $buildDirectory/districts-step-4.json -c '
 
 echo "Copying result to $outDirectory"
 cp $buildDirectory/districts-step-5.json $outDirectory/districts.geo.json
+
+rm -r $buildDirectory
