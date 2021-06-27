@@ -86,7 +86,7 @@
         const admDivision = d3.select('#admDivisionSelect').node().value;
         const level = d3.select('#levelSelect').node().value;
 
-        const promises = admDivision === 'county'
+        const promises = admDivision === 'community'
             ? [counties, countiesVaccination]
             : [districts, districtsVaccination];
 
@@ -126,14 +126,14 @@
             .attr('viewBox', '0 0 1200 800')
             .attr('preserveAspectRatio', 'xMinYMin');
 
-        const counties = d3.json("resources/counties-with-population.geo.json")
+        const counties = d3.json("resources/communities-with-population.geo.json")
             .then(json => {
                 json.features.forEach(function (feature) {
                     feature.geometry = turf.rewind(feature.geometry, {reverse: true});
                 })
                 return json;
             });
-        const countiesVaccination = d3.json("resources/counties-vaccination.geo.json");
+        const countiesVaccination = d3.json("resources/communities-vaccination.geo.json");
         const districts = d3.json("resources/districts-with-population.geo.json")
             .then(json => {
                 json.features.forEach(function (feature) {
