@@ -147,4 +147,4 @@ jq '. | to_entries | map(.value) | group_by(.teryt[:2])[] | reduce .[] as $i ({
 "fullyVaccinated": (."fullyVaccinated" + $i."fullyVaccinated")
 })' $outDirectory/communities-vaccination.json | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/voivodeships-vaccination.json
 
-#rm -r $buildDirectory
+rm -r $buildDirectory
