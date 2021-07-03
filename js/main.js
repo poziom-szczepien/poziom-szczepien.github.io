@@ -72,7 +72,7 @@
             .duration(200)
             .style("opacity", .9);
         d3.select('#tooltipDiv').html(`
-                <p><strong>${populationInUnit.name}</strong></p>
+                <p><strong>${geoUnit.properties.name}</strong></p>
                 <p>Zaszczepieni: ${(vaccinationInUnit.fullyVaccinated * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.fullyVaccinated}/${populationInUnit.population})</p>
                 <p>Co najmniej jedną: ${(vaccinationInUnit.atLeastOneDose * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.atLeastOneDose}/${populationInUnit.population})</p>
                 <p>12-19: ~${(vaccinationInUnit.w1_12_19 * 100.0 / populationInUnit["12_19"]).toFixed(1)}% (${vaccinationInUnit.w1_12_19}/~${populationInUnit["12_19"]})</p>
