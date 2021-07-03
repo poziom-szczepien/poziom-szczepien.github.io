@@ -14,34 +14,40 @@
         }
     }
 
-    function calculateFillColor(geoUnit, vaccination, level, colorScale) {
-        const vacInUnit = vaccination[geoUnit.properties.ref];
-        if (!vacInUnit) {
+    function calculateFillColor(geoUnit, vaccination, population, level, colorScale) {
+        const teryt = geoUnit.properties.teryt;
+        if (!teryt) {
             return;
+        }
+        const vaccinationInUnit = vaccination[teryt] || vaccination[teryt.substring(0, Math.min(teryt.length, 6))];
+        const populationInUnit = population[teryt] || population[teryt.substring(0, Math.min(teryt.length, 6))];
+
+        if (!vaccinationInUnit || !populationInUnit) {
+          return;
         }
 
         var percentage;
         switch (level) {
             case 'fully':
-                percentage = vacInUnit.fullyVaccinated / geoUnit.properties.population * 100;
+                percentage = vaccinationInUnit.fullyVaccinated / populationInUnit.population * 100;
                 break;
             case 'atLeastOne':
-                percentage = vacInUnit.atLeastOneDose / geoUnit.properties.population * 100;
+                percentage = vaccinationInUnit.atLeastOneDose / populationInUnit.population * 100;
                 break;
             case '12_19':
-                percentage = vacInUnit.w1_12_19 / geoUnit.properties["12_19"] * 100;
+                percentage = vaccinationInUnit.w1_12_19 / populationInUnit["12_19"] * 100;
                 break;
             case '20_39':
-                percentage = vacInUnit.w1_20_39 / geoUnit.properties["20_39"] * 100;
+                percentage = vaccinationInUnit.w1_20_39 / populationInUnit["20_39"] * 100;
                 break;
             case '40_59':
-                percentage = vacInUnit.w1_40_59 / geoUnit.properties["40_59"] * 100;
+                percentage = vaccinationInUnit.w1_40_59 / populationInUnit["40_59"] * 100;
                 break;
             case '60_69':
-                percentage = vacInUnit.w1_60_69 / geoUnit.properties["60_69"] * 100;
+                percentage = vaccinationInUnit.w1_60_69 / populationInUnit["60_69"] * 100;
                 break;
             case '70plus':
-                percentage = vacInUnit.w1_70plus / geoUnit.properties["70plus"] * 100;
+                percentage = vaccinationInUnit.w1_70plus / populationInUnit["70plus"] * 100;
                 break;
             default:
                 percentage = 0;
@@ -49,12 +55,16 @@
         return colorScale(percentage);
     }
 
-    function displayTooltip(event, geoUnit, vaccination) {
-        const vacInUnit = vaccination[geoUnit.properties.ref];
-
-        if (!vacInUnit) {
-            console.log(geoUnit.properties)
+    function displayTooltip(event, geoUnit, vaccination, population, level) {
+        const teryt = geoUnit.properties.teryt;
+        if (!teryt) {
             return;
+        }
+        const vaccinationInUnit = vaccination[teryt] || vaccination[teryt.substring(0, 6)];
+        const populationInUnit = population[teryt] || population[teryt.substring(0, 6)];
+
+        if (!vaccinationInUnit || !populationInUnit) {
+          return;
         }
 
         d3.select('#tooltipDiv')
@@ -62,14 +72,14 @@
             .duration(200)
             .style("opacity", .9);
         d3.select('#tooltipDiv').html(`
-                <p><strong>${vacInUnit ? vacInUnit.name : geoUnit.properties.ref}</strong></p>
-                <p>Zaszczepieni: ${(vacInUnit.fullyVaccinated * 100.0 / geoUnit.properties.population).toFixed(1)}% (${vacInUnit.fullyVaccinated}/${geoUnit.properties.population})</p>
-                <p>Co najmniej jedną: ${(vacInUnit.atLeastOneDose * 100.0 / geoUnit.properties.population).toFixed(1)}% (${vacInUnit.atLeastOneDose}/${geoUnit.properties.population})</p>
-                <p>12-19: ~${(vacInUnit.w1_12_19 * 100.0 / geoUnit.properties["12_19"]).toFixed(1)}% (${vacInUnit.w1_12_19}/~${geoUnit.properties["12_19"]})</p>
-                <p>20-39: ${(vacInUnit.w1_20_39 * 100.0 / geoUnit.properties["20_39"]).toFixed(1)}% (${vacInUnit.w1_20_39}/${geoUnit.properties["20_39"]})</p>
-                <p>40-59: ${(vacInUnit.w1_40_59 * 100.0 / geoUnit.properties["40_59"]).toFixed(1)}% (${vacInUnit.w1_40_59}/${geoUnit.properties["40_59"]})</p>
-                <p>60-69: ${(vacInUnit.w1_60_69 * 100.0 / geoUnit.properties["60_69"]).toFixed(1)}% (${vacInUnit.w1_60_69}/${geoUnit.properties["60_69"]})</p>
-                <p>70plus: ${(vacInUnit.w1_70plus * 100.0 / geoUnit.properties["70plus"]).toFixed(1)}% (${vacInUnit.w1_70plus}/${geoUnit.properties["70plus"]})</p>
+                <p><strong>${populationInUnit.name}</strong></p>
+                <p>Zaszczepieni: ${(vaccinationInUnit.fullyVaccinated * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.fullyVaccinated}/${populationInUnit.population})</p>
+                <p>Co najmniej jedną: ${(vaccinationInUnit.atLeastOneDose * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.atLeastOneDose}/${populationInUnit.population})</p>
+                <p>12-19: ~${(vaccinationInUnit.w1_12_19 * 100.0 / populationInUnit["12_19"]).toFixed(1)}% (${vaccinationInUnit.w1_12_19}/~${populationInUnit["12_19"]})</p>
+                <p>20-39: ${(vaccinationInUnit.w1_20_39 * 100.0 / populationInUnit["20_39"]).toFixed(1)}% (${vaccinationInUnit.w1_20_39}/${populationInUnit["20_39"]})</p>
+                <p>40-59: ${(vaccinationInUnit.w1_40_59 * 100.0 / populationInUnit["40_59"]).toFixed(1)}% (${vaccinationInUnit.w1_40_59}/${populationInUnit["40_59"]})</p>
+                <p>60-69: ${(vaccinationInUnit.w1_60_69 * 100.0 / populationInUnit["60_69"]).toFixed(1)}% (${vaccinationInUnit.w1_60_69}/${populationInUnit["60_69"]})</p>
+                <p>70plus: ${(vaccinationInUnit.w1_70plus * 100.0 / populationInUnit["70plus"]).toFixed(1)}% (${vaccinationInUnit.w1_70plus}/${populationInUnit["70plus"]})</p>
                 <small>Dla wszystkich grup wiekowych wartość<br>dotyczy zaszczepionych co najmniej jedną dawką</small>
                 `)
             .style("left", (event.pageX) + "px")
@@ -82,17 +92,20 @@
             .style("opacity", 0);
     }
 
-    function render(counties, countiesVaccination, districts, districtsVaccination, colorScale) {
+    function render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale) {
         const admDivision = d3.select('#admDivisionSelect').node().value;
         const level = d3.select('#levelSelect').node().value;
 
         const promises = admDivision === 'community'
-            ? [counties, countiesVaccination]
-            : [districts, districtsVaccination];
+            ? [communities, communitiesVaccination, communitiesPopulation]
+            : admDivision === 'district'
+                ? [districts, districtsVaccination, districtsPopulation]
+                : [voivodeships, voivodeshipsVaccination, voivodeshipsPopulation]
 
         Promise.all(promises).then(function (arr) {
             const geoJson = arr[0];
-            const vaccinationData = arr[1];
+            const vaccination = arr[1];
+            const population = arr[2];
 
             const svg = d3.select("svg");
 
@@ -110,8 +123,8 @@
                 .enter()
                 .append("path")
                 .attr("d", path)
-                .style("fill", geoUnit => calculateFillColor(geoUnit, vaccinationData, level, colorScale))
-                .on("mouseover", (event, geoUnit) => displayTooltip(event, geoUnit, vaccinationData))
+                .style("fill", geoUnit => calculateFillColor(geoUnit, vaccination, population, level, colorScale))
+                .on("mouseover", (event, geoUnit) => displayTooltip(event, geoUnit, vaccination, population, level))
                 .on("mouseout", () => hideTooltip());
         });
     }
@@ -126,33 +139,44 @@
             .attr('viewBox', '0 0 1200 800')
             .attr('preserveAspectRatio', 'xMinYMin');
 
-        const counties = d3.json("resources/communities-with-population.geo.json")
+        const communities = d3.json("resources/poland-json/geo/communities/communities-xs.geo.json")
             .then(json => {
                 json.features.forEach(function (feature) {
                     feature.geometry = turf.rewind(feature.geometry, {reverse: true});
                 })
                 return json;
             });
-        const countiesVaccination = d3.json("resources/communities-vaccination.geo.json");
-        const districts = d3.json("resources/districts-with-population.geo.json")
+        const communitiesVaccination = d3.json("resources/communities-vaccination.json");
+        const communitiesPopulation = d3.json("resources/communities-population.json");
+        const districts = d3.json("resources/poland-json/geo/districts/districts-xs.geo.json")
             .then(json => {
                 json.features.forEach(function (feature) {
                     feature.geometry = turf.rewind(feature.geometry, {reverse: true});
                 })
                 return json;
             });
-        const districtsVaccination = d3.json("resources/districts-vaccination.geo.json");
+        const districtsVaccination = d3.json("resources/districts-vaccination.json");
+        const districtsPopulation = d3.json("resources/districts-population.json");
+        const voivodeships = d3.json("resources/poland-json/geo/voivodeships/voivodeships-xs.geo.json")
+            .then(json => {
+                json.features.forEach(function (feature) {
+                    feature.geometry = turf.rewind(feature.geometry, {reverse: true});
+                })
+                return json;
+            });
+        const voivodeshipsVaccination = d3.json("resources/voivodeships-vaccination.json");
+        const voivodeshipsPopulation = d3.json("resources/voivodeships-population.json");
 
         d3.select('svg')
-            .on('resize', () => render(counties, countiesVaccination, districts, districtsVaccination, colorScale));
+            .on('resize', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
 
         d3.select('#admDivisionSelect')
-            .on('change', () => render(counties, countiesVaccination, districts, districtsVaccination, colorScale));
+            .on('change', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
 
         d3.select('#levelSelect')
-            .on('change', () => render(counties, countiesVaccination, districts, districtsVaccination, colorScale));
+            .on('change', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
 
-        render(counties, countiesVaccination, districts, districtsVaccination, colorScale);
+        render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale);
     }
 
     init();

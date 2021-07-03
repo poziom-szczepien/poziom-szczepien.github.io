@@ -1,0 +1,3 @@
+[submodule "resources/poland-json"]
+	path = resources/poland-json
+	url = https://github.com/mateusz-dziurdziak/poland-json.git
