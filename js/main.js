@@ -73,13 +73,13 @@
             .style("opacity", .9);
         d3.select('#tooltipDiv').html(`
                 <p><strong>${geoUnit.properties.name}</strong></p>
-                <p>Zaszczepieni: ${(vaccinationInUnit.fullyVaccinated * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.fullyVaccinated}/${populationInUnit.population})</p>
-                <p>Co najmniej jedną: ${(vaccinationInUnit.atLeastOneDose * 100.0 / populationInUnit.population).toFixed(1)}% (${vaccinationInUnit.atLeastOneDose}/${populationInUnit.population})</p>
-                <p>12-19: ~${(vaccinationInUnit.w1_12_19 * 100.0 / populationInUnit["12_19"]).toFixed(1)}% (${vaccinationInUnit.w1_12_19}/~${populationInUnit["12_19"]})</p>
-                <p>20-39: ${(vaccinationInUnit.w1_20_39 * 100.0 / populationInUnit["20_39"]).toFixed(1)}% (${vaccinationInUnit.w1_20_39}/${populationInUnit["20_39"]})</p>
-                <p>40-59: ${(vaccinationInUnit.w1_40_59 * 100.0 / populationInUnit["40_59"]).toFixed(1)}% (${vaccinationInUnit.w1_40_59}/${populationInUnit["40_59"]})</p>
-                <p>60-69: ${(vaccinationInUnit.w1_60_69 * 100.0 / populationInUnit["60_69"]).toFixed(1)}% (${vaccinationInUnit.w1_60_69}/${populationInUnit["60_69"]})</p>
-                <p>70plus: ${(vaccinationInUnit.w1_70plus * 100.0 / populationInUnit["70plus"]).toFixed(1)}% (${vaccinationInUnit.w1_70plus}/${populationInUnit["70plus"]})</p>
+                <p >Zaszczepieni: <span ${level === 'fully' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.fullyVaccinated * 100.0 / populationInUnit.population).toFixed(1)}%</span> (${vaccinationInUnit.fullyVaccinated}/${populationInUnit.population})</p>
+                <p>Co najmniej jedną: <span ${level === 'atLeastOne' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.atLeastOneDose * 100.0 / populationInUnit.population).toFixed(1)}%</span> (${vaccinationInUnit.atLeastOneDose}/${populationInUnit.population})</p>
+                <p>12-19: <span ${level === '12_19' ? 'class="fw-bold"' : ''}>~${(vaccinationInUnit.w1_12_19 * 100.0 / populationInUnit["12_19"]).toFixed(1)}%</span> (${vaccinationInUnit.w1_12_19}/~${populationInUnit["12_19"]})</p>
+                <p>20-39: <span ${level === '20_39' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.w1_20_39 * 100.0 / populationInUnit["20_39"]).toFixed(1)}%</span> (${vaccinationInUnit.w1_20_39}/${populationInUnit["20_39"]})</p>
+                <p>40-59: <span ${level === '40_59' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.w1_40_59 * 100.0 / populationInUnit["40_59"]).toFixed(1)}%</span> (${vaccinationInUnit.w1_40_59}/${populationInUnit["40_59"]})</p>
+                <p>60-69: <span ${level === '60_69' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.w1_60_69 * 100.0 / populationInUnit["60_69"]).toFixed(1)}%</span> (${vaccinationInUnit.w1_60_69}/${populationInUnit["60_69"]})</p>
+                <p>70plus: <span ${level === '70plus' ? 'class="fw-bold"' : ''}>${(vaccinationInUnit.w1_70plus * 100.0 / populationInUnit["70plus"]).toFixed(1)}%</span> (${vaccinationInUnit.w1_70plus}/${populationInUnit["70plus"]})</p>
                 <small>Dla wszystkich grup wiekowych wartość<br>dotyczy zaszczepionych co najmniej jedną dawką</small>
                 `)
             .style("left", (event.pageX) + "px")
