@@ -23,7 +23,7 @@
         const populationInUnit = population[teryt] || population[teryt.substring(0, Math.min(teryt.length, 6))];
 
         if (!vaccinationInUnit || !populationInUnit) {
-          return;
+            return;
         }
 
         var percentage;
@@ -64,7 +64,7 @@
         const populationInUnit = population[teryt] || population[teryt.substring(0, 6)];
 
         if (!vaccinationInUnit || !populationInUnit) {
-          return;
+            return;
         }
 
         d3.select('#tooltipDiv')
@@ -92,15 +92,15 @@
             .style("opacity", 0);
     }
 
-    function render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale) {
+    function render(dataProvider, colorScale) {
         const admDivision = d3.select('#admDivisionSelect').node().value;
         const level = d3.select('#levelSelect').node().value;
 
         const promises = admDivision === 'community'
-            ? [communities, communitiesVaccination, communitiesPopulation]
+            ? [dataProvider.getCommunities(), dataProvider.getCommunitiesVaccination(), dataProvider.getCommunitiesPopulation()]
             : admDivision === 'district'
-                ? [districts, districtsVaccination, districtsPopulation]
-                : [voivodeships, voivodeshipsVaccination, voivodeshipsPopulation]
+                ? [dataProvider.getDistricts(), dataProvider.getDistrictsVaccination(), dataProvider.getDistrictsPopulation()]
+                : [dataProvider.getVoivodeships(), dataProvider.getVoivodeshipsVaccination(), dataProvider.getVoivodeshipsPopulation()]
 
         Promise.all(promises).then(function (arr) {
             const geoJson = arr[0];
@@ -129,6 +129,94 @@
         });
     }
 
+    function initializeDataProvider() {
+        return {
+            getCommunities() {
+                if (!this.communities) {
+                    this.communities = d3.json("resources/poland-json/geo/communities/communities-xs.geo.json")
+                        .then(json => {
+                            json.features.forEach(function (feature) {
+                                feature.geometry = turf.rewind(feature.geometry, { reverse: true });
+                            })
+                            return json;
+                        });
+                }
+                return this.communities;
+            },
+
+            getCommunitiesVaccination() {
+                if (!this.cmmunitiesVaccination) {
+                    this.cmmunitiesVaccination = d3.json("resources/communities-vaccination.json");
+                }
+                return this.cmmunitiesVaccination;
+            },
+
+
+            getCommunitiesPopulation() {
+                if (!this.communitiesPopulation) {
+                    this.communitiesPopulation = d3.json("resources/communities-population.json");
+                }
+                return this.communitiesPopulation;
+            },
+
+            getDistricts() {
+                if (!this.districts) {
+                    this.districts = d3.json("resources/poland-json/geo/districts/districts-xs.geo.json")
+                        .then(json => {
+                            json.features.forEach(function (feature) {
+                                feature.geometry = turf.rewind(feature.geometry, { reverse: true });
+                            })
+                            return json;
+                        });
+                }
+                return this.districts;
+            },
+
+            getDistrictsVaccination() {
+                if (!this.districtsVaccination) {
+                    this.districtsVaccination = d3.json("resources/districts-vaccination.json");
+                }
+                return this.districtsVaccination;
+            },
+
+
+            getDistrictsPopulation() {
+                if (!this.districtsPopulation) {
+                    this.districtsPopulation = d3.json("resources/districts-population.json");
+                }
+                return this.districtsPopulation;
+            },
+
+            getVoivodeships() {
+                if (!this.voivodeships) {
+                    this.voivodeships = d3.json("resources/poland-json/geo/voivodeships/voivodeships-xs.geo.json")
+                        .then(json => {
+                            json.features.forEach(function (feature) {
+                                feature.geometry = turf.rewind(feature.geometry, { reverse: true });
+                            })
+                            return json;
+                        });
+                }
+                return this.voivodeships;
+            },
+
+            getVoivodeshipsVaccination() {
+                if (!this.voivodeshipsVaccination) {
+                    this.voivodeshipsVaccination = d3.json("resources/voivodeships-vaccination.json");
+                }
+                return this.voivodeshipsVaccination;
+            },
+
+
+            getVoivodeshipsPopulation() {
+                if (!this.voivodeshipsPopulation) {
+                    this.voivodeshipsPopulation = d3.json("resources/voivodeships-population.json");
+                }
+                return this.voivodeshipsPopulation;
+            }
+        };
+    }
+
     function init() {
         const colorScale = createColorScale();
         renderColorScale(colorScale);
@@ -139,44 +227,18 @@
             .attr('viewBox', '0 0 1200 800')
             .attr('preserveAspectRatio', 'xMinYMin');
 
-        const communities = d3.json("resources/poland-json/geo/communities/communities-xs.geo.json")
-            .then(json => {
-                json.features.forEach(function (feature) {
-                    feature.geometry = turf.rewind(feature.geometry, {reverse: true});
-                })
-                return json;
-            });
-        const communitiesVaccination = d3.json("resources/communities-vaccination.json");
-        const communitiesPopulation = d3.json("resources/communities-population.json");
-        const districts = d3.json("resources/poland-json/geo/districts/districts-xs.geo.json")
-            .then(json => {
-                json.features.forEach(function (feature) {
-                    feature.geometry = turf.rewind(feature.geometry, {reverse: true});
-                })
-                return json;
-            });
-        const districtsVaccination = d3.json("resources/districts-vaccination.json");
-        const districtsPopulation = d3.json("resources/districts-population.json");
-        const voivodeships = d3.json("resources/poland-json/geo/voivodeships/voivodeships-xs.geo.json")
-            .then(json => {
-                json.features.forEach(function (feature) {
-                    feature.geometry = turf.rewind(feature.geometry, {reverse: true});
-                })
-                return json;
-            });
-        const voivodeshipsVaccination = d3.json("resources/voivodeships-vaccination.json");
-        const voivodeshipsPopulation = d3.json("resources/voivodeships-population.json");
+        const dataProvider = initializeDataProvider();
 
         d3.select('svg')
-            .on('resize', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
+            .on('resize', () => render(dataProvider, colorScale));
 
         d3.select('#admDivisionSelect')
-            .on('change', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
+            .on('change', () => render(dataProvider, colorScale));
 
         d3.select('#levelSelect')
-            .on('change', () => render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale));
+            .on('change', () => render(dataProvider, colorScale));
 
-        render(communities, communitiesVaccination, communitiesPopulation, districts, districtsVaccination, districtsPopulation, voivodeships, voivodeshipsVaccination, voivodeshipsPopulation, colorScale);
+        render(dataProvider, colorScale);
     }
 
     init();
