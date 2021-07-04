@@ -56,6 +56,9 @@
     }
 
     function displayTooltip(event, geoUnit, vaccination, population, level) {
+        event.target.style.stroke = 'black';
+        event.target.style.strokeWidth = 2;
+
         const teryt = geoUnit.properties.teryt;
         if (!teryt) {
             return;
@@ -86,7 +89,10 @@
             .style("top", (event.pageY) + "px");
     }
 
-    function hideTooltip() {
+    function hideTooltip(event) {
+        event.target.style.stroke = '';
+        event.target.style.strokeWidth = 0;
+
         d3.select('#tooltipDiv').transition()
             .duration(500)
             .style("opacity", 0);
@@ -125,7 +131,7 @@
                 .attr("d", path)
                 .style("fill", geoUnit => calculateFillColor(geoUnit, vaccination, population, level, colorScale))
                 .on("mouseover", (event, geoUnit) => displayTooltip(event, geoUnit, vaccination, population, level))
-                .on("mouseout", () => hideTooltip());
+                .on("mouseout", () => hideTooltip(event));
         });
     }
 
