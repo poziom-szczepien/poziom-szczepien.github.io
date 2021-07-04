@@ -7,26 +7,45 @@ buildDirectory="build"
 outDirectory="resources"
 dataDirectory="data"
 
+function downloadGovData() {
+  while IFS="" read -r p || [ -n "$p" ]
+  do
+    if [ ! -f "$buildDirectory/communities/$p.json" ]; then
+      sleepTime=$(shuf -i50-150 -n1)
+      sleepTime=$(echo "$sleepTime/100" | bc -l)
+      sleep $sleepTime
+
+      wget -q --retry-on-http-error=429 --tries=10 --waitretry=1 -O $buildDirectory/communities/$p.json "https://www.gov.pl/api/data/covid-vaccination-contest/result-by-community/$p"
+      echo -n "#"
+    else
+      echo -n "-"
+    fi
+  done < $buildDirectory/communities-codes.json
+
+  grep -lrIZ " html>" $buildDirectory/communities | xargs -0 rm -f --
+  echo ""
+}
+
 mkdir -p $buildDirectory/communities
 
 csvtojson $dataDirectory/LUDN_2137_CTAB_20210625164329.csv --delimiter=';'|  jq -r '.[] |  .Kod | sub("\\d$"; "")' > $buildDirectory/communities-codes.json
 
-echo "Downloading gov data (this will take 60 min)"
-while IFS="" read -r p || [ -n "$p" ]
-do
-  if [ ! -f "$buildDirectory/communities/$p.json" ]; then
-    sleepTime=$(shuf -i50-150 -n1)
-    sleepTime=$(echo "$sleepTime/100" | bc -l)
-    sleep $sleepTime
+echo "Downloading gov data (this will take ~60 min)"
+date
 
-    wget -q --retry-on-http-error=429 --tries=10 --waitretry=1 -O $buildDirectory/communities/$p.json "https://www.gov.pl/api/data/covid-vaccination-contest/result-by-community/$p"
-    echo -n "#"
-  else
-    echo -n "-"
-  fi
-done < $buildDirectory/communities-codes.json
+downloadGovData
+fileCount=$(find $buildDirectory/communities | wc -l)
 
-grep -lrIZ " html>" $buildDirectory/communities | xargs -0 rm -f --
+while [ $fileCount -le 2470 ]; do
+  echo "Retraying download..."
+  sleep 10
+  downloadGovData
+
+  fileCount=$(find $buildDirectory/communities | wc -l)
+done
+
+echo "Downloaded data"
+date
 
 echo "#### Building communities ####"
 
