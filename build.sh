@@ -37,7 +37,7 @@ downloadGovData
 fileCount=$(find $buildDirectory/communities | wc -l)
 
 while [ $fileCount -le 2470 ]; do
-  echo "Retraying download..."
+  echo "Retrying download..."
   sleep 10
   downloadGovData
 
