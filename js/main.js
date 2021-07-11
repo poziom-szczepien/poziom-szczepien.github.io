@@ -229,10 +229,12 @@
         const colorScale = createColorScale();
         renderColorScale(colorScale);
 
+        const boxSize = Math.min(document.querySelector('h1').clientWidth, window.innerHeight);
+
         d3.select("svg")
-            .attr("width", '1200')
-            .attr("height", '800')
-            .attr('viewBox', '0 0 1200 800')
+            .attr("width", boxSize)
+            .attr("height", boxSize)
+            .attr('viewBox', '0 0 ' + boxSize + ' ' + boxSize)
             .attr('preserveAspectRatio', 'xMinYMin');
 
         const dataProvider = initializeDataProvider();
