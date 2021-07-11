@@ -98,7 +98,7 @@
             .style("opacity", 0);
     }
 
-    function render(dataProvider, colorScale) {
+    function render(dataProvider, colorScale, scale) {
         const admDivision = d3.select('#admDivisionSelect').node().value;
         const level = d3.select('#levelSelect').node().value;
 
@@ -132,6 +132,8 @@
                 .style("fill", geoUnit => calculateFillColor(geoUnit, vaccination, population, level, colorScale))
                 .on("mouseover", (event, geoUnit) => displayTooltip(event, geoUnit, vaccination, population, level))
                 .on("mouseout", () => hideTooltip(event));
+
+            svgPanZoom('svg');
         });
     }
 
