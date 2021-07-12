@@ -132,8 +132,6 @@
                 .style("fill", geoUnit => calculateFillColor(geoUnit, vaccination, population, level, colorScale))
                 .on("mouseover", (event, geoUnit) => displayTooltip(event, geoUnit, vaccination, population, level))
                 .on("mouseout", () => hideTooltip(event));
-
-            svgPanZoom('svg');
         });
     }
 
