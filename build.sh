@@ -3,9 +3,10 @@
 set -e
 set -o nounset
 
+buildDate=`date +%Y%m%d_%k%M%S`
 buildDirectory="build"
-outDirectory="resources"
 dataDirectory="data"
+outDirectory="resources/${buildDate}"
 
 function downloadGovData() {
   while IFS="" read -r p || [ -n "$p" ]
@@ -27,6 +28,7 @@ function downloadGovData() {
 }
 
 mkdir -p $buildDirectory/communities
+mkdir -p $outDirectory
 
 csvtojson $dataDirectory/LUDN_2137_CTAB_20210625164329.csv --delimiter=';'|  jq -r '.[] |  .Kod | sub("\\d$"; "")' > $buildDirectory/communities-codes.json
 
@@ -167,3 +169,6 @@ jq '. | to_entries | map(.value) | group_by(.teryt[:2])[] | reduce .[] as $i ({
 })' $outDirectory/communities-vaccination.json | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/voivodeships-vaccination.json
 
 rm -r $buildDirectory
+
+export BUILD_DATE="${buildDate}"
+envsubst < "index.html.template" > "index.html"

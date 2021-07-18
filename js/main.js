@@ -152,7 +152,7 @@
 
             getCommunitiesVaccination() {
                 if (!this.cmmunitiesVaccination) {
-                    this.cmmunitiesVaccination = d3.json("resources/communities-vaccination.json");
+                    this.cmmunitiesVaccination = d3.json(resourcesDir + "/communities-vaccination.json");
                 }
                 return this.cmmunitiesVaccination;
             },
@@ -160,7 +160,7 @@
 
             getCommunitiesPopulation() {
                 if (!this.communitiesPopulation) {
-                    this.communitiesPopulation = d3.json("resources/communities-population.json");
+                    this.communitiesPopulation = d3.json(resourcesDir + "/communities-population.json");
                 }
                 return this.communitiesPopulation;
             },
@@ -180,7 +180,7 @@
 
             getDistrictsVaccination() {
                 if (!this.districtsVaccination) {
-                    this.districtsVaccination = d3.json("resources/districts-vaccination.json");
+                    this.districtsVaccination = d3.json(resourcesDir + "/districts-vaccination.json");
                 }
                 return this.districtsVaccination;
             },
@@ -188,7 +188,7 @@
 
             getDistrictsPopulation() {
                 if (!this.districtsPopulation) {
-                    this.districtsPopulation = d3.json("resources/districts-population.json");
+                    this.districtsPopulation = d3.json(resourcesDir + "/districts-population.json");
                 }
                 return this.districtsPopulation;
             },
@@ -208,7 +208,7 @@
 
             getVoivodeshipsVaccination() {
                 if (!this.voivodeshipsVaccination) {
-                    this.voivodeshipsVaccination = d3.json("resources/voivodeships-vaccination.json");
+                    this.voivodeshipsVaccination = d3.json(resourcesDir + "/voivodeships-vaccination.json");
                 }
                 return this.voivodeshipsVaccination;
             },
@@ -216,7 +216,7 @@
 
             getVoivodeshipsPopulation() {
                 if (!this.voivodeshipsPopulation) {
-                    this.voivodeshipsPopulation = d3.json("resources/voivodeships-population.json");
+                    this.voivodeshipsPopulation = d3.json(resourcesDir + "/voivodeships-population.json");
                 }
                 return this.voivodeshipsPopulation;
             }
