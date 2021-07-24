@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
   git \
   npm \
   jq \
+  gettext-base \
   && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g csvtojson
