@@ -35,16 +35,16 @@ csvtojson $dataDirectory/LUDN_2137_CTAB_20210625164329.csv --delimiter=';'|  jq 
 echo "Downloading gov data (this will take ~60 min)"
 date
 
-downloadGovData
-fileCount=$(find $buildDirectory/communities | wc -l)
+# downloadGovData
+# fileCount=$(find $buildDirectory/communities | wc -l)
 
-while [ $fileCount -le 2470 ]; do
-  echo "Retrying download..."
-  sleep 10
-  downloadGovData
+# while [ $fileCount -le 2470 ]; do
+#   echo "Retrying download..."
+#   sleep 10
+#   downloadGovData
 
-  fileCount=$(find $buildDirectory/communities | wc -l)
-done
+#   fileCount=$(find $buildDirectory/communities | wc -l)
+# done
 
 echo "Downloaded data"
 date
