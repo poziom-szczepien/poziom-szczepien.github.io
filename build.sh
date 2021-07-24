@@ -51,24 +51,6 @@ date
 
 echo "#### Building communities ####"
 
-echo "Processing communities population data"
-csvtojson $dataDirectory/LUDN_2137_CTAB_20210625164329.csv --delimiter=';'|  jq '.[] | {
-original_name: .Nazwa,
-teryt: .Kod,
-name: ((.Nazwa | sub(" *\\(\\d+\\)";"") | sub(" - miasto"; "") | sub(" - obszar wiejski"; "") | sub(" - dzielnica *(\\(\\d\\))*"; "") | sub("M.st.Warszawa"; "Warszawa") | sub(" od \\d{4}";""))),
-"0_4": (."0-4" |  tonumber),
-"5_9": (."5-9" |  tonumber),
-"10_14": (."10-14" |  tonumber),
-"15_19": (."15-19" |  tonumber),
-"12_19": (((."10-14" | tonumber) + (."15-19" | tonumber)) * 8 / 10 ) | floor,
-"20_39": ((."20-24" |  tonumber) + (."25-29" | tonumber) + (."30-34" | tonumber) + (."35-39" | tonumber) ),
-"40_59": ((."40-44" |  tonumber) + (."45-49" | tonumber) + (."50-54" | tonumber) + (."55-59" | tonumber) ),
-"60_69": ((."60-64" |  tonumber) + (."65-69" | tonumber)),
-"70plus": (."70 i więcej" | tonumber),
-"population": (."ogółem" | tonumber)
-} ' | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)'> $outDirectory/communities-population.json
-
-
 echo  "Processing communities vaccination data"
 jq '. | {
     "teryt": input_filename | split("/") | last | .[:6],
@@ -85,23 +67,6 @@ jq '. | {
 } ' build/communities/* | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/communities-vaccination.json
 
 echo "#### Building districts ####"
-
-echo "Processing districts population data"
-csvtojson $dataDirectory/LUDN_2137_CTAB_20210624222104.csv --delimiter=';'|  jq '.[] | {
-name: .Nazwa|sub("Powiat *(m\\.)* *(st\\.)* *";""),
-original_name: .Nazwa,
-teryt: .Kod[:4],
-"0_4": (."0-4" |  tonumber),
-"5_9": (."5-9" |  tonumber),
-"10_14": (."10-14" |  tonumber),
-"15_19": (."15-19" |  tonumber),
-"12_19": (((."0-4" | tonumber) + (."5-9" | tonumber) + (."10-14" | tonumber) + (."15-19" | tonumber)) * 8 / 19 ) | floor,
-"20_39": ((."20-24" |  tonumber) + (."25-29" | tonumber) + (."30-34" | tonumber) + (."35-39" | tonumber) ),
-"40_59": ((."40-44" |  tonumber) + (."45-49" | tonumber) + (."50-54" | tonumber) + (."55-59" | tonumber) ),
-"60_69": ((."60-64" |  tonumber) + (."65-69" | tonumber)),
-"70plus": (."70 i więcej" | tonumber),
-"population": (."ogółem" | tonumber)
-}' | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/districts-population.json
 
 echo "Processing districts vaccination data"
 jq '. | to_entries | map(.value) | group_by(.teryt[:4])[] | reduce .[] as $i ({
@@ -127,23 +92,6 @@ jq '. | to_entries | map(.value) | group_by(.teryt[:4])[] | reduce .[] as $i ({
 })' $outDirectory/communities-vaccination.json | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/districts-vaccination.json
 
 echo "#### Building voivodeships ####"
-
-echo "Processing voivodeships population data"
-csvtojson $dataDirectory/LUDN_2137_CTAB_20210703214543.csv --delimiter=';'|  jq '.[] | {
-name: .Nazwa|sub("Powiat *(m\\.)* *(st\\.)* *";""),
-original_name: .Nazwa,
-teryt: .Kod[:2],
-"0_4": (."0-4" |  tonumber),
-"5_9": (."5-9" |  tonumber),
-"10_14": (."10-14" |  tonumber),
-"15_19": (."15-19" |  tonumber),
-"12_19": (((."0-4" | tonumber) + (."5-9" | tonumber) + (."10-14" | tonumber) + (."15-19" | tonumber)) * 8 / 19 ) | floor,
-"20_39": ((."20-24" |  tonumber) + (."25-29" | tonumber) + (."30-34" | tonumber) + (."35-39" | tonumber) ),
-"40_59": ((."40-44" |  tonumber) + (."45-49" | tonumber) + (."50-54" | tonumber) + (."55-59" | tonumber) ),
-"60_69": ((."60-64" |  tonumber) + (."65-69" | tonumber)),
-"70plus": (."70 i więcej" | tonumber),
-"population": (."ogółem" | tonumber)
-}' | jq -s '. | group_by(.teryt)[] | {(.[0].teryt): .[0] }' | jq -s 'reduce .[] as $i ({}; . + $i)' > $outDirectory/voivodeships-population.json
 
 echo "Processing voivodeships vaccination data"
 jq '. | to_entries | map(.value) | group_by(.teryt[:2])[] | reduce .[] as $i ({

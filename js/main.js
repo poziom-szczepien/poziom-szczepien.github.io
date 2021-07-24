@@ -160,7 +160,7 @@
 
             getCommunitiesPopulation() {
                 if (!this.communitiesPopulation) {
-                    this.communitiesPopulation = d3.json(resourcesDir + "/communities-population.json");
+                    this.communitiesPopulation = d3.json("/resources/communities-population.json");
                 }
                 return this.communitiesPopulation;
             },
@@ -188,7 +188,7 @@
 
             getDistrictsPopulation() {
                 if (!this.districtsPopulation) {
-                    this.districtsPopulation = d3.json(resourcesDir + "/districts-population.json");
+                    this.districtsPopulation = d3.json("resources/districts-population.json");
                 }
                 return this.districtsPopulation;
             },
@@ -216,7 +216,7 @@
 
             getVoivodeshipsPopulation() {
                 if (!this.voivodeshipsPopulation) {
-                    this.voivodeshipsPopulation = d3.json(resourcesDir + "/voivodeships-population.json");
+                    this.voivodeshipsPopulation = d3.json("resources/voivodeships-population.json");
                 }
                 return this.voivodeshipsPopulation;
             }
