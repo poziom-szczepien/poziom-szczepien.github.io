@@ -1,8 +1,8 @@
 (function () {
     function createColorScale() {
-        return chroma.scale(['white', 'darkblue'])
+        return chroma.scale(['#de425b', '#ee9861', '#f2df9d', '#8cb578', '#00876c'])
             .domain([0, 100])
-            .gamma(1);
+            .gamma(0.8);
     }
 
     function renderColorScale(colorScale) {
