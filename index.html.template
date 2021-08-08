@@ -169,6 +169,25 @@
             </div>
         </div>
 
+        <div class="accordion" id="faq4">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faq4heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFaq4" aria-expanded="false" aria-controls="collapseFaq4">
+                        Dlaczego w niektórych gminach seniorzy zaszczepieni są w >100%?
+                    </button>
+                </h2>
+                <div id="collapseFaq4" class="accordion-collapse collapse" aria-labelledby="faq4heading"
+                     data-bs-parent="#faq4">
+                    <div class="accordion-body">
+                        Zostało to wytłumaczone w <a href="https://www.gov.pl/web/szczepienia-gmin/liczba-zaszczepionych-mieszkancow-w-gminach-metodyka">metodyce</a>: "Z uwagi na ciągłą migrację wewnętrzną i zewnętrzną ludności 
+                        oraz możliwe błędy w szacunku liczby mieszkańców, może dojść do sytuacji, w której niektóre gminy 
+                        osiągną wskaźnik wyszczepienia powyżej poziomu 100%."
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 <div id="tooltipDiv" class="tooltip" style="opacity: 0">
